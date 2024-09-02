@@ -45,7 +45,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh ech 'Build'
+                    sh echo 'Build'
                 }
             }
         }
