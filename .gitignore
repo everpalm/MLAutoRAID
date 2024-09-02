@@ -4,3 +4,6 @@
 /logs
 /paramiko.log
 /Pipfile.lock
+/remoting
+/workspace
+remoting.jar
