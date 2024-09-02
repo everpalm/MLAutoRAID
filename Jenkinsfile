@@ -39,24 +39,28 @@ pipeline {
     }
     environment {
         MY_PRIVATE_TOKEN = credentials('gitlab-private-token')
-        WORK_PATH = 'C:\\Users\\STE\\Projects\\MLAutoRAID'
+        WORK_PATH = 'C:\\Users\\STE\\Projects\\MLAutoRAID\\workspace\\MLAutoRAID'
     }
     stages {
         stage('Setup') {
             steps {
-                script {
-                    // 安装所有依赖项，包括 pytest
-                    bat "pipenv install --dev"
+                dir("${env.WORK_PATH}") { // 切换到指定的工作路径
+                    script {
+                        // 安装所有依赖项，包括 pytest
+                        bat "pipenv install --dev"
+                    }
                 }
             }
         }
         stage('Testing') {
             steps {
-                script {
-                    if (params.TEST_ENVIRONMENT == 'test_unit') {
-                        bat 'pipenv run pytest tests\\test_unit --testmon'
-                    } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
-                        bat 'pipenv run pytest tests\\test_system --testmon'
+                dir("${env.WORK_PATH}") {
+                    script {
+                        if (params.TEST_ENVIRONMENT == 'test_unit') {
+                            bat 'pipenv run pytest tests\\test_unit --testmon'
+                        } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
+                            bat 'pipenv run pytest tests\\test_system --testmon'
+                        }
                     }
                 }
             }
@@ -65,7 +69,7 @@ pipeline {
     post {
         always {
             emailext body: 'Test results are available at: $BUILD_URL', subject: 'Test Results', to: 'everpalm@yahoo.com.tw'
-            // sh "pipenv run python -m pytest --cache-clear"
+            bat "pipenv run python -m pytest --cache-clear"
         }
         success {
             echo 'todo - 1'
