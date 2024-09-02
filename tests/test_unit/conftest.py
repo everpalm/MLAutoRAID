@@ -3,7 +3,6 @@
 
 import pytest
 import logging
-import paramiko
 from unittest.mock import patch
 from unit.mongodb import MongoDB
 
