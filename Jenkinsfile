@@ -42,10 +42,11 @@ pipeline {
         WORK_PATH = 'C:\\Users\\STE\\Projects\\MLAutoRAID'
     }
     stages {
-        stage('Build') {
+        stage('Setup') {
             steps {
                 script {
-                    sh ech 'Build'
+                    // 安装所有依赖项，包括 pytest
+                    bat "pipenv install --dev"
                 }
             }
         }
@@ -53,11 +54,9 @@ pipeline {
             steps {
                 script {
                     if (params.TEST_ENVIRONMENT == 'test_unit') {
-                        // sh "cd /home/pi/Projects/AutoRAID/tests/test_unit && pipenv run python -m pytest --testmon --private_token=${MY_PRIVATE_TOKEN}"
-                        sh 'pipenv run pytest tests\\test_unit\\ --testmon --private_token=$MY_PRIVATE_TOKEN'
+                        bat 'pipenv run pytest tests\\test_unit --testmon'
                     } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
-                        // sh "cd /home/pi/Projects/AutoRAID/tests/test_amd_desktop && pipenv run python -m pytest --testmon --private_token=${MY_PRIVATE_TOKEN}"
-                        sh 'pipenv run pytest tests\\test_system --testmon --private_token=$MY_PRIVATE_TOKEN'
+                        bat 'pipenv run pytest tests\\test_system --testmon'
                     }
                 }
             }
