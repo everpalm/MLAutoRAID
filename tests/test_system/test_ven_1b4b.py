@@ -24,6 +24,7 @@ class TestWindowsMLModel:
         # 准备和训练模型
         windows_ml_model.prepare_data()
         windows_ml_model.train_model()
+        # windows_ml_model.plot_results()
         
         # 测试找到最佳的 ramp_times
         best_ramp_time = windows_ml_model.find_best_ramp_time()

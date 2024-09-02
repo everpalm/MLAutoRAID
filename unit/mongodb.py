@@ -721,7 +721,9 @@ class MongoDB(object):
             logger.critical(f"Error performing aggregation: {e}")
             return None
         
-    def aggregate_ramp_metrics(self, write_pattern, ramp_times):
+    # def aggregate_ramp_metrics(self, write_pattern, ramp_times):
+    def aggregate_ramp_metrics(self, limit=10000):
+    # def aggregate_ramp_metrics(self):
         """
         Aggregates ramp I/O metrics from the MongoDB collection.
 
@@ -743,7 +745,7 @@ class MongoDB(object):
             MongoDB.
         """
         try:
-            with open('configurations/pipeline_ramp_times.json', 'r') as file:
+            with open('config/pipeline_ramp_times.json', 'r') as file:
                 pipeline = json.load(file)
         except FileNotFoundError:
             logger.error("Pipeline configuration file not found.")
@@ -753,11 +755,14 @@ class MongoDB(object):
             return None
         
         # Update the pipeline with the specific filter values
+        # for stage in pipeline:
+        #     if "$match" in stage and "write_pattern" in stage["$match"]:
+        #         stage["$match"]["write_pattern"]["$eq"] = write_pattern
+        #     if "$match" in stage and "ramp_times" in stage["$match"]:
+        #         stage["$match"]["ramp_times"]["$eq"] = ramp_times
         for stage in pipeline:
-            if "$match" in stage and "write_pattern" in stage["$match"]:
-                stage["$match"]["write_pattern"]["$eq"] = write_pattern
-            if "$match" in stage and "ramp_times" in stage["$match"]:
-                stage["$match"]["ramp_times"]["$eq"] = ramp_times
+            if "$limit" in stage:
+                stage["$limit"] = limit
 
         try:
             result = list(self.collection.aggregate(pipeline))
@@ -792,7 +797,7 @@ class MongoDB(object):
             MongoDB.
         """
         try:
-            with open('configurations/pipeline_stress.json', 'r') as file:
+            with open('config/pipeline_stress.json', 'r') as file:
                 pipeline = json.load(file)
         except FileNotFoundError:
             logger.error("Pipeline configuration file not found.")
