@@ -54,11 +54,13 @@ pipeline {
         }
         stage('Testing') {
             steps {
-                script {
-                    if (params.TEST_ENVIRONMENT == 'test_unit') {
-                        bat 'pipenv run pytest tests\\test_unit --testmon'
-                    } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
-                        bat 'pipenv run pytest tests\\test_system --testmon'
+                dir("${env.WORK_PATH}") {
+                    script {
+                        if (params.TEST_ENVIRONMENT == 'test_unit') {
+                            bat 'pipenv run pytest tests\\test_unit --testmon'
+                        } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
+                            bat 'pipenv run pytest tests\\test_system --testmon'
+                        }
                     }
                 }
             }
