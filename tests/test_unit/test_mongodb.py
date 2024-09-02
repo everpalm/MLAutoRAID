@@ -3,14 +3,11 @@
 import logging
 from unit.mongodb import MongoDB
 from unittest.mock import patch
-
-# import pytest
-
-logger = logging.getLogger(__name__)
-
 import json
 import pytest
 from unittest.mock import patch, mock_open
+
+logger = logging.getLogger(__name__)
 
 MDB_ATTR = [{
     "Log Path": '/home/pi/uart.log',
@@ -36,6 +33,7 @@ AGGREGATE_RESULTS = [{
     # "min_write_iops": 250,
     # "std_write_iops": 12.909944
 }]
+
 
 class TestMongoDB:
     @pytest.fixture(scope="module")
