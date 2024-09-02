@@ -39,7 +39,7 @@ pipeline {
     }
     environment {
         MY_PRIVATE_TOKEN = credentials('gitlab-private-token')
-        WORK_PATH = 'C:\Users\STE\Projects\MLAutoRAID'
+        WORK_PATH = 'C:\\Users\\STE\\Projects\\MLAutoRAID'
     }
     stages {
         stage('Build') {
@@ -53,11 +53,9 @@ pipeline {
             steps {
                 script {
                     if (params.TEST_ENVIRONMENT == 'test_unit') {
-                        // sh "cd /home/pi/Projects/AutoRAID/tests/test_unit && pipenv run python -m pytest --testmon --private_token=${MY_PRIVATE_TOKEN}"
-                        sh 'pipenv run pytest tests/test_unit/ --testmon --private_token=$MY_PRIVATE_TOKEN'
+                        sh 'pipenv run pytest tests\\test_unit --testmon --private_token=$MY_PRIVATE_TOKEN'
                     } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
-                        // sh "cd /home/pi/Projects/AutoRAID/tests/test_amd_desktop && pipenv run python -m pytest --testmon --private_token=${MY_PRIVATE_TOKEN}"
-                        sh 'pipenv run pytest tests/test_system --testmon --private_token=$MY_PRIVATE_TOKEN'
+                        sh 'pipenv run pytest tests\\test_system --testmon --private_token=$MY_PRIVATE_TOKEN'
                     }
                 }
             }
