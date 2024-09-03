@@ -9,9 +9,16 @@
   },
   {
     "$match": {
-      "report.collectors.outcome": {
-        "$regex": "passed"
-      }
+      "$and": [
+        {"report.collectors.outcome": {
+            "$regex": "passed"
+          }
+        }, {
+          "report.tests.keywords": {
+            "$regex": "TestRampTimeReadWrite"
+          }
+        }
+      ]
     }
   },
   {

@@ -4,11 +4,24 @@
 import pytest
 # from system.ven_1b4b import MLModelFactory
 # from unittest.mock import MagicMock
-from system.ven_1b4b import WindowsMLModel as wmlm
-# from unit.mongodb import MongoDB as mdb
+from system.ven_1b4b import MLRampTime
+from unit.mongodb import MongoDB
 
-@pytest.fixture
-def windows_ml_model():
+@pytest.fixture(scope='module', autouse=True)
+def mdb():
+    print('\n\033[32m================ Setup MongoDB ========\033[0m')
+    db_ip = '192.168.0.128'
+    db_port = 27017
+    db_name = 'AutoRAID'
+    collection_name = 'amd_desktop'
+    print(f'db_ip = {db_ip}')
+    print(f'db_port = {db_port}')
+    print(f'db_name = {db_name}')
+    print(f'collection_name = {collection_name}')
+    return MongoDB(db_ip, db_port, db_name, collection_name)
+
+@pytest.fixture(scope='module', autouse=True)
+def windows_ml_model(mdb):
     # 使用工厂创建一个Windows的ML模型实例
     # db_uri = 'mongodb://localhost:27017/'
     # db_ip = 'localhost'
@@ -30,4 +43,6 @@ def windows_ml_model():
 
     # return model
     print('\n\033[32m================ Setup Windows ML Model ========\033[0m')
-    return wmlm('192.168.0.128', 'AutoRAID', 'amd_desktop', 10000)
+    # return wmlm('192.168.0.128', 'AutoRAID', 'amd_desktop', 10000)
+    estimated_range = 180
+    return MLRampTime(mdb, estimated_range)
