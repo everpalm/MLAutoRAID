@@ -1,4 +1,3 @@
-def gv
 pipeline {
     triggers {
         // Trigger hook every 5 minutes
@@ -9,32 +8,15 @@ pipeline {
         label 'AMD64_DESKTOP'
     }
     parameters {
-        // Add parameters for test suite selection
-        choice(
-            choices: [
-                'test_system',
-                'test_unit'
-            ],
-            description: 'Select the test environment',
-            name: 'TEST_ENVIRONMENT'
-        )
+        // Add parameters for test suite selection with default value 'all'
         choice(
             choices: [
                 'all',
                 'unit',
                 'system'
             ],
-            description: 'My Test Suite',
+            description: 'Select the test suite to run',
             name: 'MY_SUITE'
-        )
-        choice(
-            choices: [
-                'all',
-                'unit',
-                'system'
-            ],
-            description: 'Functional Test',
-            name: 'FUNCTIONAL'
         )
     }
     environment {
@@ -44,9 +26,9 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                dir("${env.WORK_PATH}") { // 切换到指定的工作路径
+                dir("${env.WORK_PATH}") {
                     script {
-                        // 安装所有依赖项，包括 pytest
+                        // Install all dependencies, including pytest
                         bat "pipenv install --dev"
                     }
                 }
@@ -56,10 +38,13 @@ pipeline {
             steps {
                 dir("${env.WORK_PATH}") {
                     script {
-                        if (params.TEST_ENVIRONMENT == 'test_unit') {
+                        // Determine which tests to run based on the MY_SUITE parameter
+                        if (params.MY_SUITE == 'unit') {
                             bat 'pipenv run pytest tests\\test_unit --testmon'
-                        } else if (params.TEST_ENVIRONMENT == 'test_amd_desktop') {
+                        } else if (params.MY_SUITE == 'system') {
                             bat 'pipenv run pytest tests\\test_system --testmon'
+                        } else if (params.MY_SUITE == 'all') {
+                            bat 'pipenv run pytest tests --testmon'
                         }
                     }
                 }
@@ -68,14 +53,15 @@ pipeline {
     }
     post {
         always {
+            // Send email notification and clear pytest cache
             emailext body: 'Test results are available at: $BUILD_URL', subject: 'Test Results', to: 'everpalm@yahoo.com.tw'
             bat "pipenv run python -m pytest --cache-clear"
         }
         success {
-            echo 'todo - 1'
+            echo 'Test completed successfully.'
         }
         failure {
-            echo 'todo - 2'
+            echo 'Test failed.'
         }
     }
 }
