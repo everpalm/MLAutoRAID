@@ -18,6 +18,7 @@ pytest-repeat = "*"
 paramiko = "*"
 pytest-dependency = "*"
 pytest-rerunfailures = "*"
+seaborn = "*"
 
 [dev-packages]
 
