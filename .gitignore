@@ -6,4 +6,6 @@
 /Pipfile.lock
 /remoting
 /workspace
+*/__pycache__
+*/*/__pycache__
 remoting.jar
