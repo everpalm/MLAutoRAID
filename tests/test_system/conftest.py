@@ -44,5 +44,5 @@ def windows_ml_model(mdb):
     # return model
     print('\n\033[32m================ Setup Windows ML Model ========\033[0m')
     # return wmlm('192.168.0.128', 'AutoRAID', 'amd_desktop', 10000)
-    estimated_range = 180
-    return MLRampTime(mdb, estimated_range)
+    # estimated_range = 180
+    return MLRampTime(mdb, range=180)

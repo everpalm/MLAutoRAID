@@ -3,6 +3,7 @@ import logging
 import matplotlib.pyplot as plt
 # from pymongo import MongoClient
 import pandas as pd
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
@@ -12,14 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class MLModel(ABC):
-    # def __init__(self, db_uri, db_name, collection_name, limit):
+
     def __init__(self, mongodb, range):
-        # self.client = MongoClient(db_uri)
-        # self.db = self.client[db_name]
-        # self.collection = self.db[collection_name]
-        # self.model = None
         self.mongodb = mongodb
         self.range = range + 1
+        self.model = None
+        self.dataframe = None
 
     @abstractmethod
     def prepare_data(self):
@@ -34,32 +33,44 @@ class MLModel(ABC):
         pass
 
 class MLRampTime(MLModel):
+    
     def prepare_data(self):
         # 提取数据并进行预处理
-        # data = pd.DataFrame(list(self.collection.find()))
-        # dict_raw_data = mdb('localhost', 27017, 'AutoRAID', 'amd_desktop').aggregate_ramp_metrics(self.limit)
         dict_raw_data = self.mongodb.aggregate_ramp_metrics()
         logger.info(f'self.range = {self.range}')
         logger.debug(f'type(raw_data) = {type(dict_raw_data)}')
         logger.debug(dict_raw_data['combined_data'])
         
         raw_data = dict_raw_data['combined_data']
-        self.model = None
 
-        data = pd.DataFrame(raw_data)
-        logger.debug(f'data = {data}')
+        dataframe = pd.DataFrame(raw_data)
+        logger.debug(f'dataframe(type({type(dataframe)})) = {dataframe}')
         
+        # 调用检查相关性的方法
+        self.check_correlation(dataframe)
+
         # 假设目标是最大化 read_iops 和 write_iops，因此将其加和作为优化目标
-        data['performance'] = data['read_iops'] + data['write_iops']
+        dataframe['performance'] = (dataframe['read_iops'] +
+                                    dataframe['write_iops'])
 
         # 选择特征和目标变量
-        X = data[['ramp_times']]
-        y = data['performance']
-        # print(f'X = {X}')
-        # print(f'y = {y}')
+        X = dataframe[['ramp_times']]
+        y = dataframe['performance']
+        
         # 划分训练集和测试集
         self.X_train, self.X_test, self.y_train, self.y_test = \
-            train_test_split(X, y, test_size=0.5, random_state=42)
+            train_test_split(X, y, test_size=0.2, random_state=42)
+
+    def check_correlation(self, data):
+        # 計算相關係數矩陣
+        corr_matrix = data.corr()
+        logger.info(f'Correlation matrix:\n{corr_matrix}')
+
+        # 繪製相關性熱圖
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+        plt.title('Correlation Matrix Heatmap')
+        plt.savefig("logs\\heapmap.png")
 
     def train_model(self):
         # 初始化并训练模型
