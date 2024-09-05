@@ -155,6 +155,34 @@
       "$limit": 10000
     },
     {
+      "$addFields": {
+        "read_iops": {
+          "$ifNull": [
+            "$read_iops",
+            0
+          ]
+        },
+        "read_bw": {
+          "$ifNull": [
+            "$read_bw",
+            0
+          ]
+        },
+        "write_iops": {
+          "$ifNull": [
+            "$write_iops",
+            0
+          ]
+        },
+        "write_bw": {
+          "$ifNull": [
+            "$write_bw",
+            0
+          ]
+        }
+      }
+    },
+    {
       "$match": {
         "$or": [
           {

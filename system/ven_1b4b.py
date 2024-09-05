@@ -29,7 +29,7 @@ class MLModel(ABC):
         pass
 
     @abstractmethod
-    def find_best_ramp_time(self):
+    def find_best_value(self):
         pass
 
 class MLRampTime(MLModel):
@@ -39,7 +39,7 @@ class MLRampTime(MLModel):
         dict_raw_data = self.mongodb.aggregate_ramp_metrics(limit=10000)
         logger.info(f'self.range = {self.range}')
         logger.debug(f'type(raw_data) = {type(dict_raw_data)}')
-        logger.debug(dict_raw_data['combined_data'])
+        # logger.debug(dict_raw_data['combined_data'])
         
         raw_data = dict_raw_data['combined_data']
 
@@ -70,7 +70,7 @@ class MLRampTime(MLModel):
         plt.figure(figsize=(10, 8))
         sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
         plt.title('Correlation Matrix Heatmap')
-        plt.savefig("logs\\heapmap.png")
+        plt.savefig("logs\\heapmap_ramptime.png")
 
     def train_model(self):
         # 初始化并训练模型
@@ -82,7 +82,7 @@ class MLRampTime(MLModel):
         mse = mean_squared_error(self.y_test, predictions)
         logger.info(f'mse = {mse}')
 
-    def find_best_ramp_time(self):
+    def find_best_value(self):
         # 生成可能的 ramp_times 值范围
         possible_ramp_times = pd.DataFrame({'ramp_times': range(1, self.range)})
 
@@ -116,10 +116,10 @@ class MLStressMetric(MLModel):
     
     def prepare_data(self):
         # 提取数据并进行预处理
-        dict_raw_data = self.mongodb.aggregate_stress_metrics()
+        dict_raw_data = self.mongodb.aggregate_stress_metrics(limit=10000)
         logger.info(f'self.range = {self.range}')
         logger.debug(f'type(raw_data) = {type(dict_raw_data)}')
-        logger.debug(dict_raw_data['combined_data'])
+        # logger.debug(dict_raw_data['combined_data'])
         
         raw_data = dict_raw_data['combined_data']
 
@@ -134,7 +134,7 @@ class MLStressMetric(MLModel):
                                     dataframe['write_iops'])
 
         # 选择特征和目标变量
-        X = dataframe[['ramp_times']]
+        X = dataframe[['io_depth']]
         y = dataframe['performance']
         
         # 划分训练集和测试集
@@ -143,14 +143,16 @@ class MLStressMetric(MLModel):
 
     def check_correlation(self, data):
         # 計算相關係數矩陣
-        corr_matrix = data.corr()
-        logger.info(f'Correlation matrix:\n{corr_matrix}')
+        # corr_matrix = data.corr()
+        # logger.info(f'Correlation matrix:\n{corr_matrix}')
+        numeric_df = data.select_dtypes(include=[float, int])
+        corr_matrix = numeric_df.corr()
 
         # 繪製相關性熱圖
         plt.figure(figsize=(10, 8))
         sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
         plt.title('Correlation Matrix Heatmap')
-        plt.savefig("logs\\heapmap.png")
+        plt.savefig("logs\\heapmap_stress.png")
 
     def train_model(self):
         # 初始化并训练模型
@@ -162,20 +164,20 @@ class MLStressMetric(MLModel):
         mse = mean_squared_error(self.y_test, predictions)
         logger.info(f'mse = {mse}')
 
-    def find_best_ramp_time(self):
-        # 生成可能的 ramp_times 值范围
-        possible_ramp_times = pd.DataFrame({'ramp_times': range(1, self.range)})
+    def find_best_value(self):
+        # 生成可能的 io_depth 值范围
+        possible_io_depth = pd.DataFrame({'io_depth': range(1, self.range)})
 
         # predict performance
-        performance_predictions = self.model.predict(possible_ramp_times)
+        performance_predictions = self.model.predict(possible_io_depth)
 
         # Find best ramp_times
         best_index = performance_predictions.argmax()
-        best_ramp_time = possible_ramp_times.iloc[best_index]['ramp_times']
-        logger.info(f'best_ramp_time = {best_ramp_time}')
-        return best_ramp_time
+        best_io_depth = possible_io_depth.iloc[best_index]['io_depth']
+        logger.info(f'best_io_depth = {best_io_depth}')
+        return best_io_depth
 
-    def plot_results(self, save_path_with_timestamp):
+    def plot_results(self, save_path):
         # 绘制 X 对 y 的曲线图
         plt.figure(figsize=(10, 6))
         plt.scatter(self.X_train, self.y_train, color='blue',
@@ -184,9 +186,9 @@ class MLStressMetric(MLModel):
                     label='Testing data')
         plt.plot(self.X_test, self.model.predict(self.X_test), color='red',
                  label='Model prediction')
-        plt.xlabel('Ramp Times')
+        plt.xlabel('I/O Depth')
         plt.ylabel('Performance')
-        plt.title('Ramp Times vs Performance')
+        plt.title('I/O Depth vs Performance')
         plt.legend()
         # plt.show()
-        plt.savefig(save_path_with_timestamp)
+        plt.savefig(save_path)

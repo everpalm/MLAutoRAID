@@ -768,7 +768,8 @@ class MongoDB(object):
             logger.critical(f"Error performing aggregation: {e}")
             return None
         
-    def aggregate_stress_metrics(self, write_pattern, iodepth):
+    # def aggregate_stress_metrics(self, write_pattern, iodepth):
+    def aggregate_stress_metrics(self, limit: int) -> Dict:
         """
         Aggregates I/O stress metrics from the MongoDB collection.
 
@@ -800,11 +801,14 @@ class MongoDB(object):
             return None
         
         # Update the pipeline with the specific filter values
+        # for stage in pipeline:
+        #     if "$match" in stage and "write_pattern" in stage["$match"]:
+        #         stage["$match"]["write_pattern"]["$eq"] = write_pattern
+        #     if "$match" in stage and "io_depth" in stage["$match"]:
+        #         stage["$match"]["io_depth"]["$eq"] = iodepth
         for stage in pipeline:
-            if "$match" in stage and "write_pattern" in stage["$match"]:
-                stage["$match"]["write_pattern"]["$eq"] = write_pattern
-            if "$match" in stage and "io_depth" in stage["$match"]:
-                stage["$match"]["io_depth"]["$eq"] = iodepth
+            if "$limit" in stage:
+                stage["$limit"] = limit
 
         try:
             result = list(self.collection.aggregate(pipeline))
