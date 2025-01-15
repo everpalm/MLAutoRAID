@@ -29,7 +29,8 @@ pipeline {
                 dir("${env.WORK_PATH}") {
                     script {
                         // Install all dependencies, including pytest
-                        bat "pipenv install --dev"
+                        // bat "pipenv install --dev"
+                        bat "pipenv sync"
                     }
                 }
             }
