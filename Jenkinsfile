@@ -1,8 +1,8 @@
 pipeline {
-    triggers {
-        // Trigger hook every 5 minutes
-        pollSCM('H/5 * * * *')
-    }
+    // triggers {
+    //     // Trigger hook every 5 minutes
+    //     pollSCM('H/5 * * * *')
+    // }
     agent {
         // Run test on the nodes with the same label
         label 'AMD64_DESKTOP'
