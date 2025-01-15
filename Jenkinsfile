@@ -11,9 +11,9 @@ pipeline {
         // Add parameters for test suite selection with default value 'all'
         choice(
             choices: [
-                'regression test',
-                'unit test',
-                'sanity check'
+                'all',
+                'unit',
+                'system'
             ],
             description: 'Select the test suite to run',
             name: 'MY_SUITE'
@@ -40,11 +40,11 @@ pipeline {
                 dir("${env.WORK_PATH}") {
                     script {
                         // Determine which tests to run based on the MY_SUITE parameter
-                        if (params.MY_SUITE == 'unit test') {
+                        if (params.MY_SUITE == 'unit') {
                             bat 'pipenv run pytest tests\\test_unit'
-                        } else if (params.MY_SUITE == 'sanity check') {
-                            bat 'pipenv run pytest tests --testmon'
-                        } else if (params.MY_SUITE == 'regression test') {
+                        } else if (params.MY_SUITE == 'system') {
+                            bat 'pipenv run pytest tests\\test_system'
+                        } else if (params.MY_SUITE == 'all') {
                             bat 'pipenv run pytest tests'
                         }
                     }
