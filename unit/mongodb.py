@@ -182,7 +182,7 @@ class MongoDB(object):
         except errors.PyMongoError as e:
             logger.critical(f"Error finding document: {e}")
             return None
-        
+
     def aggregate_random_metrics(self, write_pattern, io_depth):
         """
         Aggregates random I/O metrics from the MongoDB collection.
@@ -721,7 +721,7 @@ class MongoDB(object):
         except errors.PyMongoError as e:
             logger.critical(f"Error performing aggregation: {e}")
             return None
-        
+ 
     def aggregate_ramp_metrics(self, limit: int) -> Dict:
         """
         Aggregates ramp I/O metrics from the MongoDB collection.
@@ -752,7 +752,7 @@ class MongoDB(object):
         except json.JSONDecodeError as e:
             logger.critical(f"Error decoding JSON from pipeline configuration: {e}")
             return None
-        
+
         for stage in pipeline:
             if "$limit" in stage:
                 stage["$limit"] = limit
@@ -767,7 +767,7 @@ class MongoDB(object):
         except errors.PyMongoError as e:
             logger.critical(f"Error performing aggregation: {e}")
             return None
-        
+
     # def aggregate_stress_metrics(self, write_pattern, iodepth):
     def aggregate_stress_metrics(self, limit: int) -> Dict:
         """

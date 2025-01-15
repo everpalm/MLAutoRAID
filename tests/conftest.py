@@ -10,56 +10,52 @@ MDB_ATTR = [{
     "Report Path": ".report.json"
 }]
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(
+    level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S')
-
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 paramiko.util.log_to_file("paramiko.log", level=logging.CRITICAL)
 
 logger = logging.getLogger(__name__)
 
 
-# def pytest_addoption(parser):
-#     parser.addoption(
-#         "--mode",
-#         action="store",
-#         default="remote",
-#         help="Default Mode: remote"
-#     )
-#     parser.addoption(
-#         "--if_name",
-#         action="store",
-#         default="eth0",
-#         help="Default name of interface: eth0"
-#     )
-#     parser.addoption(
-#         "--config_file",
-#         action="store",
-#         default="app_map.json",
-#         help="Default config file: app_map.json"
-#     )
-#     parser.addoption(
-#         "--private_token",
-#         action="store",
-#         default="xxxxx-xxxx",
-#         help="Check your GitLab Private Token"
-#     )
-# @pytest.fixture(scope="session")
-# def cmdopt(request):
-#     cmdopt_dic = {}
-#     cmdopt_dic.update({'mode': request.config.getoption("--mode")})
-#     cmdopt_dic.update({'if_name': request.config.getoption("--if_name")})
-#     cmdopt_dic.update({'config_file': request.config.getoption("--config_file")})
-#     cmdopt_dic.update({'private_token': request.config.getoption("--private_token")})
-#     return cmdopt_dic
+def pytest_addoption(parser):
+    parser.addoption(
+        "--ip",
+        action="store",
+        default="192.168.0.128",
+        help="Default IP: 192.168.0.128"
+    )
+    parser.addoption(
+        "--port",
+        action="store",
+        default="27017",
+        help="Default port: 27017"
+    )
+    parser.addoption(
+        "--database",
+        action="store",
+        default="AutoRAID",
+        help="Default database: AutoRAID"
+    )
+    parser.addoption(
+        "--collection",
+        action="store",
+        default="amd64",
+        help="Default collection: amd64"
+    )
 
 
-# @pytest.fixture(scope="session", autouse=True)
-# def test_open_uart(drone):
-#     print('\n\033[32m================ Setup UART ===============\033[0m')
-#     yield drone.open_uart()
-#     print('\n\033[32m================ Teardown UART ===============\033[0m')
-#     drone.close_uart()
+@pytest.fixture(scope="session")
+def cmdopt(request):
+    cmdopt_dic = {}
+    cmdopt_dic.update({'ip': request.config.getoption("--ip")})
+    cmdopt_dic.update({'port': request.config.getoption("--port")})
+    cmdopt_dic.update({'database': request.config.getoption("--database")})
+    cmdopt_dic.update({'collection': request.config.getoption("--collection")})
+    return cmdopt_dic
+
 
 def pytest_sessionfinish(session, exitstatus):
     for item in session.items:

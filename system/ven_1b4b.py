@@ -32,20 +32,21 @@ class MLModel(ABC):
     def find_best_value(self):
         pass
 
+
 class MLRampTime(MLModel):
-    
+
     def prepare_data(self):
         # 提取数据并进行预处理
         dict_raw_data = self.mongodb.aggregate_ramp_metrics(limit=10000)
-        logger.info(f'self.range = {self.range}')
-        logger.debug(f'type(raw_data) = {type(dict_raw_data)}')
+        logger.info('self.range = %s', self.range)
+        logger.debug('type(raw_data) = %s', type(dict_raw_data))
         # logger.debug(dict_raw_data['combined_data'])
-        
+
         raw_data = dict_raw_data['combined_data']
 
         dataframe = pd.DataFrame(raw_data)
         logger.debug(f'dataframe(type({type(dataframe)})) = {dataframe}')
-        
+
         # 调用检查相关性的方法
         self.check_correlation(dataframe)
 
@@ -56,7 +57,7 @@ class MLRampTime(MLModel):
         # 选择特征和目标变量
         X = dataframe[['ramp_times']]
         y = dataframe['performance']
-        
+
         # 划分训练集和测试集
         self.X_train, self.X_test, self.y_train, self.y_test = \
             train_test_split(X, y, test_size=0.2, random_state=42)
@@ -84,7 +85,8 @@ class MLRampTime(MLModel):
 
     def find_best_value(self):
         # 生成可能的 ramp_times 值范围
-        possible_ramp_times = pd.DataFrame({'ramp_times': range(1, self.range)})
+        possible_ramp_times = pd.DataFrame(
+            {'ramp_times': range(1, self.range)})
 
         # predict performance
         performance_predictions = self.model.predict(possible_ramp_times)
@@ -113,19 +115,19 @@ class MLRampTime(MLModel):
 
 
 class MLStressMetric(MLModel):
-    
+
     def prepare_data(self):
         # 提取数据并进行预处理
         dict_raw_data = self.mongodb.aggregate_stress_metrics(limit=10000)
         logger.info(f'self.range = {self.range}')
         logger.debug(f'type(raw_data) = {type(dict_raw_data)}')
         # logger.debug(dict_raw_data['combined_data'])
-        
+
         raw_data = dict_raw_data['combined_data']
 
         dataframe = pd.DataFrame(raw_data)
         logger.debug(f'dataframe(type({type(dataframe)})) = {dataframe}')
-        
+
         # 调用检查相关性的方法
         self.check_correlation(dataframe)
 
@@ -136,7 +138,7 @@ class MLStressMetric(MLModel):
         # 选择特征和目标变量
         X = dataframe[['io_depth']]
         y = dataframe['performance']
-        
+
         # 划分训练集和测试集
         self.X_train, self.X_test, self.y_train, self.y_test = \
             train_test_split(X, y, test_size=0.2, random_state=42)

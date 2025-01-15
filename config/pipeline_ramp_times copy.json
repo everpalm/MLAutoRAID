@@ -182,7 +182,28 @@
   },
   {
     "$match": {
-      "ramp_times": {"$gte": 120}
+      "$or": [
+        {
+          "read_iops": {
+            "$ne": null
+          }
+        },
+        {
+          "read_bw": {
+            "$ne": null
+          }
+        },
+        {
+          "write_iops": {
+            "$ne": null
+          }
+        },
+        {
+          "write_bw": {
+            "$ne": null
+          }
+        }
+      ]
     }
   },
   {
